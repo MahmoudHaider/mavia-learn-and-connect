@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
-import { convertToModelMessages, type UIMessage } from "ai";
+import { convertToModelMessages, createUIMessageStreamResponse, type UIMessage } from "ai";
 
 import { createResponsesCall } from "./responses";
+import { INTRO_ANSWER_AR, INTRO_ANSWER_EN, isPlatformIntroQuestion } from "./canned";
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1";
 const MODEL = "openai/gpt-6-astra";
@@ -18,13 +19,30 @@ const INSTRUCTIONS = `إنت "مساعد ماڤيا"، المساعد الذكي
   4. حاسبة GPA: جدول بتكتب فيه كل مادة وساعاتها ودرجة الميد (من 30) وأعمال السنة/التكليفات (من 30) والفاينل (من 40). الترم فيه 8 مواد: 3 مواد 3 ساعات و4 مواد ساعتين ومادة واحدة برا الـ GPA (ساعاتها مش بتتحسب)، ويقدر يعلّم أي مادة إنها داخلة أو برا الـ GPA، وبتطلعلك التقدير والمعدل من 4. السلم: 90+ A=4.0، 85 A-=3.7، 80 B+=3.3، 75 B=3.0، 70 C+=2.7، 65 C=2.4، 60 D+=2.2، 50 D=2.0، أقل من 50 F.
   5. الكوميونتي: روابط جروبات الدفعات، وشات جوه المنصة لكل دفعة يتواصلوا فيه، وإنت (المساعد الذكي).
 - ممكن كمان تساعد الطلاب في أسئلة عامة عن المذاكرة والـ GIS والبرمجة.
-لو حد سأل عن حاجة مش موجودة في المنصة قول بصراحة إنها مش موجودة. ما تخترعش معلومات عن المواد أو الدرجات.`;
+لو حد سأل عن حاجة مش موجودة في المنصة قول بصراحة إنها مش موجودة. ما تخترعش معلومات عن المواد أو الدرجات.
+لو اتسألت "ايه هي ماڤيا؟" أو "What is MAVIA?" رد بالنص ده حرفيًا من غير ما تزيد أو تغير: ${INTRO_ANSWER_AR}`;
 
 function json(status: number, message: string) {
   return new Response(JSON.stringify({ error: message }), {
     status,
     headers: { "content-type": "application/json" },
   });
+}
+
+/** Sends a fixed answer through the same UI-message stream the chat client expects. */
+function textStreamResponse(text: string): Response {
+  const id = "mavia-intro";
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue({ type: "start" });
+      controller.enqueue({ type: "text-start", id });
+      controller.enqueue({ type: "text-delta", id, delta: text });
+      controller.enqueue({ type: "text-end", id });
+      controller.enqueue({ type: "finish" });
+      controller.close();
+    },
+  });
+  return createUIMessageStreamResponse({ stream });
 }
 
 async function verifyUser(request: Request): Promise<boolean> {
@@ -55,6 +73,15 @@ export async function handleAssistant(request: Request): Promise<Response> {
     lang = body.lang === "en" ? "en" : "ar";
   } catch {
     return json(400, "طلب غير صحيح.");
+  }
+
+  // The first question ("what is MAVIA?") always gets the official wording, verbatim.
+  const firstUserText = (messages.find((m) => m.role === "user")?.parts ?? [])
+    .map((p) => (p.type === "text" ? p.text : ""))
+    .join(" ")
+    .trim();
+  if (isPlatformIntroQuestion(firstUserText)) {
+    return textStreamResponse(lang === "en" ? INTRO_ANSWER_EN : INTRO_ANSWER_AR);
   }
 
   const modelMessages = await convertToModelMessages(messages);
