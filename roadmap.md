@@ -1,0 +1,12 @@
+# Mavia roadmap
+- [x] Design system (black & gold), logo, landing page
+- [x] Register/login (name, password, phone, year)
+- [x] Home: intro + cohort leaderboard
+- [x] Courses: subjects, summaries, quizzes (admin adds)
+- [x] Learning: YouTube/platform links (admin adds)
+- [x] GPA calculator table
+- [x] Community: group links, cohort chat, AI assistant
+- [x] Works on phone, tablet, laptop, desktop + installable on home screen
+- [ ] Explain how to open the code in VS Code (GitHub)
+- [x] Replace logo with the official uploaded logo (site, tab icon, phone icon)
+- [ ] Arabic / English language switch across the whole platform

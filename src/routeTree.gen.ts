@@ -10,33 +10,184 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedGpaRouteImport } from './routes/_authenticated/gpa'
+import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedLearningRouteImport } from './routes/_authenticated/learning'
+import { Route as ApiAssistantRouteImport } from './routes/api/assistant'
+import { Route as AuthenticatedCommunityIndexRouteImport } from './routes/_authenticated/community.index'
+import { Route as AuthenticatedCommunityAssistantRouteImport } from './routes/_authenticated/community.assistant'
+import { Route as AuthenticatedCommunityChatRouteImport } from './routes/_authenticated/community.chat'
+import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
+import { Route as AuthenticatedCoursesSubjectIdRouteImport } from './routes/_authenticated/courses.$subjectId'
+import { Route as AuthenticatedQuizQuizIdRouteImport } from './routes/_authenticated/quiz.$quizId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedGpaRoute = AuthenticatedGpaRouteImport.update({
+  id: '/gpa',
+  path: '/gpa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLearningRoute = AuthenticatedLearningRouteImport.update({
+  id: '/learning',
+  path: '/learning',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiAssistantRoute = ApiAssistantRouteImport.update({
+  id: '/api/assistant',
+  path: '/api/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCommunityIndexRoute =
+  AuthenticatedCommunityIndexRouteImport.update({
+    id: '/community/',
+    path: '/community/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCommunityAssistantRoute =
+  AuthenticatedCommunityAssistantRouteImport.update({
+    id: '/community/assistant',
+    path: '/community/assistant',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCommunityChatRoute =
+  AuthenticatedCommunityChatRouteImport.update({
+    id: '/community/chat',
+    path: '/community/chat',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCoursesIndexRoute =
+  AuthenticatedCoursesIndexRouteImport.update({
+    id: '/courses/',
+    path: '/courses/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCoursesSubjectIdRoute =
+  AuthenticatedCoursesSubjectIdRouteImport.update({
+    id: '/courses/$subjectId',
+    path: '/courses/$subjectId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedQuizQuizIdRoute = AuthenticatedQuizQuizIdRouteImport.update({
+  id: '/quiz/$quizId',
+  path: '/quiz/$quizId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/gpa': typeof AuthenticatedGpaRoute
+  '/home': typeof AuthenticatedHomeRoute
+  '/learning': typeof AuthenticatedLearningRoute
+  '/api/assistant': typeof ApiAssistantRoute
+  '/community/assistant': typeof AuthenticatedCommunityAssistantRoute
+  '/community/chat': typeof AuthenticatedCommunityChatRoute
+  '/courses/$subjectId': typeof AuthenticatedCoursesSubjectIdRoute
+  '/quiz/$quizId': typeof AuthenticatedQuizQuizIdRoute
+  '/community/': typeof AuthenticatedCommunityIndexRoute
+  '/courses/': typeof AuthenticatedCoursesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/gpa': typeof AuthenticatedGpaRoute
+  '/home': typeof AuthenticatedHomeRoute
+  '/learning': typeof AuthenticatedLearningRoute
+  '/api/assistant': typeof ApiAssistantRoute
+  '/community/assistant': typeof AuthenticatedCommunityAssistantRoute
+  '/community/chat': typeof AuthenticatedCommunityChatRoute
+  '/courses/$subjectId': typeof AuthenticatedCoursesSubjectIdRoute
+  '/quiz/$quizId': typeof AuthenticatedQuizQuizIdRoute
+  '/community': typeof AuthenticatedCommunityIndexRoute
+  '/courses': typeof AuthenticatedCoursesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/gpa': typeof AuthenticatedGpaRoute
+  '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/learning': typeof AuthenticatedLearningRoute
+  '/api/assistant': typeof ApiAssistantRoute
+  '/_authenticated/community/assistant': typeof AuthenticatedCommunityAssistantRoute
+  '/_authenticated/community/chat': typeof AuthenticatedCommunityChatRoute
+  '/_authenticated/courses/$subjectId': typeof AuthenticatedCoursesSubjectIdRoute
+  '/_authenticated/quiz/$quizId': typeof AuthenticatedQuizQuizIdRoute
+  '/_authenticated/community/': typeof AuthenticatedCommunityIndexRoute
+  '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/gpa'
+    | '/home'
+    | '/learning'
+    | '/api/assistant'
+    | '/community/assistant'
+    | '/community/chat'
+    | '/courses/$subjectId'
+    | '/quiz/$quizId'
+    | '/community/'
+    | '/courses/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/gpa'
+    | '/home'
+    | '/learning'
+    | '/api/assistant'
+    | '/community/assistant'
+    | '/community/chat'
+    | '/courses/$subjectId'
+    | '/quiz/$quizId'
+    | '/community'
+    | '/courses'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/gpa'
+    | '/_authenticated/home'
+    | '/_authenticated/learning'
+    | '/api/assistant'
+    | '/_authenticated/community/assistant'
+    | '/_authenticated/community/chat'
+    | '/_authenticated/courses/$subjectId'
+    | '/_authenticated/quiz/$quizId'
+    | '/_authenticated/community/'
+    | '/_authenticated/courses/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ApiAssistantRoute: typeof ApiAssistantRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +199,125 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/gpa': {
+      id: '/_authenticated/gpa'
+      path: '/gpa'
+      fullPath: '/gpa'
+      preLoaderRoute: typeof AuthenticatedGpaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/home': {
+      id: '/_authenticated/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/learning': {
+      id: '/_authenticated/learning'
+      path: '/learning'
+      fullPath: '/learning'
+      preLoaderRoute: typeof AuthenticatedLearningRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/assistant': {
+      id: '/api/assistant'
+      path: '/api/assistant'
+      fullPath: '/api/assistant'
+      preLoaderRoute: typeof ApiAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/community/': {
+      id: '/_authenticated/community/'
+      path: '/community'
+      fullPath: '/community/'
+      preLoaderRoute: typeof AuthenticatedCommunityIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/community/assistant': {
+      id: '/_authenticated/community/assistant'
+      path: '/community/assistant'
+      fullPath: '/community/assistant'
+      preLoaderRoute: typeof AuthenticatedCommunityAssistantRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/community/chat': {
+      id: '/_authenticated/community/chat'
+      path: '/community/chat'
+      fullPath: '/community/chat'
+      preLoaderRoute: typeof AuthenticatedCommunityChatRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/courses/': {
+      id: '/_authenticated/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof AuthenticatedCoursesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/courses/$subjectId': {
+      id: '/_authenticated/courses/$subjectId'
+      path: '/courses/$subjectId'
+      fullPath: '/courses/$subjectId'
+      preLoaderRoute: typeof AuthenticatedCoursesSubjectIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/quiz/$quizId': {
+      id: '/_authenticated/quiz/$quizId'
+      path: '/quiz/$quizId'
+      fullPath: '/quiz/$quizId'
+      preLoaderRoute: typeof AuthenticatedQuizQuizIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedGpaRoute: typeof AuthenticatedGpaRoute
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedLearningRoute: typeof AuthenticatedLearningRoute
+  AuthenticatedCommunityAssistantRoute: typeof AuthenticatedCommunityAssistantRoute
+  AuthenticatedCommunityChatRoute: typeof AuthenticatedCommunityChatRoute
+  AuthenticatedCoursesSubjectIdRoute: typeof AuthenticatedCoursesSubjectIdRoute
+  AuthenticatedQuizQuizIdRoute: typeof AuthenticatedQuizQuizIdRoute
+  AuthenticatedCommunityIndexRoute: typeof AuthenticatedCommunityIndexRoute
+  AuthenticatedCoursesIndexRoute: typeof AuthenticatedCoursesIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedGpaRoute: AuthenticatedGpaRoute,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedLearningRoute: AuthenticatedLearningRoute,
+  AuthenticatedCommunityAssistantRoute: AuthenticatedCommunityAssistantRoute,
+  AuthenticatedCommunityChatRoute: AuthenticatedCommunityChatRoute,
+  AuthenticatedCoursesSubjectIdRoute: AuthenticatedCoursesSubjectIdRoute,
+  AuthenticatedQuizQuizIdRoute: AuthenticatedQuizQuizIdRoute,
+  AuthenticatedCommunityIndexRoute: AuthenticatedCommunityIndexRoute,
+  AuthenticatedCoursesIndexRoute: AuthenticatedCoursesIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ApiAssistantRoute: ApiAssistantRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
