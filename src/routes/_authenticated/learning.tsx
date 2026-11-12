@@ -89,7 +89,7 @@ function LearningPage() {
     <div>
       <PageHeader
         eyebrow="Learning"
-        title={tr("اتعلّم", "Learning")}
+        title="Learning"
         description={tr(
           "فيديوهات يوتيوب ومنصات تعليمية في الـ GIS والبرمجة، بضغطة تروح على المصدر على طول.",
           "YouTube videos and learning platforms for GIS and programming — one tap takes you straight there.",
