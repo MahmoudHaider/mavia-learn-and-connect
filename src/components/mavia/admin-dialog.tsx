@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useLang } from "@/lib/i18n";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,7 @@ export function AdminDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { tr } = useLang();
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,10 +34,10 @@ export function AdminDialog({
     setBusy(true);
     try {
       await onSave(form);
-      toast.success("اتحفظ بنجاح");
+      toast.success(tr("اتحفظ بنجاح", "Saved"));
       setOpen(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "حصلت مشكلة في الحفظ");
+      toast.error(err instanceof Error ? err.message : tr("حصلت مشكلة في الحفظ", "Could not save"));
     } finally {
       setBusy(false);
     }
@@ -49,15 +51,17 @@ export function AdminDialog({
           {triggerLabel}
         </Button>
       </DialogTrigger>
-      <DialogContent dir="rtl" className="border-border bg-popover sm:max-w-lg">
+      <DialogContent className="border-border bg-popover sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-right font-display text-xl text-primary">{title}</DialogTitle>
+          <DialogTitle className="text-start font-display text-xl text-primary">
+            {title}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           {children}
           <Button type="submit" className="w-full" disabled={busy}>
             {busy && <Loader2 className="animate-spin" />}
-            حفظ
+            {tr("حفظ", "Save")}
           </Button>
         </form>
       </DialogContent>
@@ -83,6 +87,6 @@ export function str(form: FormData, key: string): string {
 
 export function required(form: FormData, key: string, label: string): string {
   const v = str(form, key);
-  if (!v) throw new Error(`${label} مطلوب`);
+  if (!v) throw new Error(`${label} *`);
   return v;
 }

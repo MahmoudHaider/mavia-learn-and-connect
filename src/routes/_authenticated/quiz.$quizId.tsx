@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/quiz/$quizId")({
   head: () => ({
@@ -35,6 +36,7 @@ function QuizPage() {
   const { quizId } = Route.useParams();
   const { data: me } = useMe();
   const qc = useQueryClient();
+  const { tr } = useLang();
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [result, setResult] = useState<Result | null>(null);
   const [busy, setBusy] = useState(false);
@@ -79,11 +81,20 @@ function QuizPage() {
   });
 
   async function addQuestion(form: FormData) {
-    const question = required(form, "question", "السؤال");
-    const options = [0, 1, 2, 3].map((i) => String(form.get(`opt${i}`) ?? "").trim()).filter(Boolean);
-    if (options.length < 2) throw new Error("لازم اختيارين على الأقل");
+    const question = required(form, "question", tr("السؤال", "Question"));
+    const options = [0, 1, 2, 3]
+      .map((i) => String(form.get(`opt${i}`) ?? "").trim())
+      .filter(Boolean);
+    if (options.length < 2)
+      throw new Error(tr("لازم اختيارين على الأقل", "At least two options are required"));
     const correct = Number(form.get("correct") ?? -1);
-    if (correct < 0 || correct >= options.length) throw new Error("اختار الإجابة الصحيحة من الاختيارات المكتوبة");
+    if (correct < 0 || correct >= options.length)
+      throw new Error(
+        tr(
+          "اختار الإجابة الصحيحة من الاختيارات المكتوبة",
+          "Mark the correct answer among the filled options",
+        ),
+      );
     const { data, error } = await supabase
       .from("quiz_questions")
       .insert({ quiz_id: quizId, question, options, position: questions.data?.length ?? 0 })
@@ -99,19 +110,36 @@ function QuizPage() {
   }
 
   async function deleteQuestion(id: string) {
-    if (!confirm("تمسح السؤال ده؟")) return;
+    if (!confirm(tr("تمسح السؤال ده؟", "Delete this question?"))) return;
     const { error } = await supabase.from("quiz_questions").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     qc.invalidateQueries({ queryKey: ["questions", quizId] });
   }
 
   async function submit() {
     const qs = questions.data ?? [];
-    if (Object.keys(answers).length < qs.length && !confirm("فيه أسئلة ما جاوبتهاش، تسلّم برضه؟")) return;
+    if (
+      Object.keys(answers).length < qs.length &&
+      !confirm(
+        tr("فيه أسئلة ما جاوبتهاش، تسلّم برضه؟", "Some questions are unanswered. Submit anyway?"),
+      )
+    )
+      return;
     setBusy(true);
-    const { data, error } = await supabase.rpc("submit_quiz", { _quiz_id: quizId, _answers: answers });
+    const { data, error } = await supabase.rpc("submit_quiz", {
+      _quiz_id: quizId,
+      _answers: answers,
+    });
     setBusy(false);
-    if (error) { toast.error("ما قدرناش نسلّم الاختبار، حاول تاني."); return; }
+    if (error) {
+      toast.error(
+        tr("ما قدرناش نسلّم الاختبار، حاول تاني.", "Could not submit the quiz, try again."),
+      );
+      return;
+    }
     setResult(data as unknown as Result);
     qc.invalidateQueries({ queryKey: ["leaderboard"] });
     qc.invalidateQueries({ queryKey: ["my-attempts"] });
@@ -120,7 +148,8 @@ function QuizPage() {
 
   if (quiz.isLoading || questions.isLoading)
     return <div className="h-40 animate-pulse rounded-2xl bg-muted" />;
-  if (!quiz.data) return <EmptyState title="الاختبار ده مش موجود" />;
+  if (!quiz.data)
+    return <EmptyState title={tr("الاختبار ده مش موجود", "This quiz does not exist")} />;
 
   const subject = quiz.data.subjects as unknown as { id: string; title: string } | null;
   const qs = questions.data ?? [];
@@ -131,7 +160,7 @@ function QuizPage() {
       {subject && (
         <Button asChild variant="ghost" size="sm" className="mb-4">
           <Link to="/courses/$subjectId" params={{ subjectId: subject.id }}>
-            <ArrowRight /> {subject.title}
+            <ArrowRight className="ltr:rotate-180" /> {subject.title}
           </Link>
         </Button>
       )}
@@ -141,12 +170,18 @@ function QuizPage() {
         description={quiz.data.description ?? undefined}
         action={
           me?.isAdmin && (
-            <AdminDialog triggerLabel="إضافة سؤال" title="سؤال جديد" onSave={addQuestion}>
-              <Field label="السؤال">
+            <AdminDialog
+              triggerLabel={tr("إضافة سؤال", "Add question")}
+              title={tr("سؤال جديد", "New question")}
+              onSave={addQuestion}
+            >
+              <Field label={tr("السؤال", "Question")}>
                 <Textarea name="question" rows={3} />
               </Field>
               <div className="space-y-2">
-                <span className="text-sm font-medium">الاختيارات (علّم الصح)</span>
+                <span className="text-sm font-medium">
+                  {tr("الاختيارات (علّم الصح)", "Options (mark the correct one)")}
+                </span>
                 {[0, 1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center gap-2">
                     <input
@@ -155,9 +190,15 @@ function QuizPage() {
                       value={i}
                       defaultChecked={i === 0}
                       className="h-4 w-4 accent-[var(--gold)]"
-                      aria-label={`الاختيار ${i + 1} صح`}
+                      aria-label={tr(`الاختيار ${i + 1} صح`, `Option ${i + 1} is correct`)}
                     />
-                    <Input name={`opt${i}`} placeholder={`اختيار ${i + 1}${i > 1 ? " (اختياري)" : ""}`} />
+                    <Input
+                      name={`opt${i}`}
+                      placeholder={tr(
+                        `اختيار ${i + 1}${i > 1 ? " (اختياري)" : ""}`,
+                        `Option ${i + 1}${i > 1 ? " (optional)" : ""}`,
+                      )}
+                    />
                   </div>
                 ))}
               </div>
@@ -168,12 +209,17 @@ function QuizPage() {
 
       {result && (
         <div className="card-lux animate-rise mb-8 border-primary/60 p-6 text-center shadow-gold">
-          <div className="text-sm text-muted-foreground">نتيجتك</div>
+          <div className="text-sm text-muted-foreground">{tr("نتيجتك", "Your score")}</div>
           <div className="mt-1 font-latin text-5xl font-bold text-gold-gradient">
             {result.score}/{result.total}
           </div>
           <p className="mt-2 text-sm">
-            {result.score === result.total ? "ممتاز! الدرجة النهائية 🏆" : "اتضافت أعلى درجة ليك للوحة التصدر."}
+            {result.score === result.total
+              ? tr("ممتاز! الدرجة النهائية 🏆", "Perfect score! 🏆")
+              : tr(
+                  "اتضافت أعلى درجة ليك للوحة التصدر.",
+                  "Your best score counts on the leaderboard.",
+                )}
           </p>
           <Button
             variant="outline"
@@ -183,13 +229,13 @@ function QuizPage() {
               setAnswers({});
             }}
           >
-            <RotateCcw /> حل تاني
+            <RotateCcw /> {tr("حل تاني", "Retake")}
           </Button>
         </div>
       )}
 
       {!qs.length ? (
-        <EmptyState title="الاختبار ده لسه مفيهوش أسئلة" />
+        <EmptyState title={tr("الاختبار ده لسه مفيهوش أسئلة", "This quiz has no questions yet")} />
       ) : (
         <div className="space-y-5">
           {qs.map((q, qi) => {
@@ -199,11 +245,16 @@ function QuizPage() {
               <div key={q.id} className="card-lux p-6">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-sans text-base leading-7 font-semibold">
-                    <span className="ml-2 font-latin text-primary">{qi + 1}.</span>
+                    <span className="me-2 font-latin text-primary">{qi + 1}.</span>
                     {q.question}
                   </h3>
                   {me?.isAdmin && (
-                    <Button variant="ghost" size="icon-sm" onClick={() => deleteQuestion(q.id)} aria-label="مسح السؤال">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => deleteQuestion(q.id)}
+                      aria-label={tr("مسح السؤال", "Delete question")}
+                    >
                       <Trash2 />
                     </Button>
                   )}
@@ -220,7 +271,7 @@ function QuizPage() {
                         disabled={!!result}
                         onClick={() => setAnswers((a) => ({ ...a, [q.id]: oi }))}
                         className={cn(
-                          "press-gold flex items-center justify-between rounded-xl border border-border bg-background/40 px-4 py-3 text-right text-sm hover:border-primary/60",
+                          "press-gold flex items-center justify-between rounded-xl border border-border bg-background/40 px-4 py-3 text-start text-sm hover:border-primary/60",
                           chosen && !result && "border-primary bg-primary text-primary-foreground",
                           (r || me?.isAdmin) && isCorrect && "border-success text-success",
                           isWrongPick && "border-destructive text-destructive",
@@ -239,7 +290,7 @@ function QuizPage() {
           {!result && (
             <Button size="lg" className="w-full" onClick={submit} disabled={busy}>
               {busy && <Loader2 className="animate-spin" />}
-              تسليم الاختبار
+              {tr("تسليم الاختبار", "Submit quiz")}
             </Button>
           )}
         </div>

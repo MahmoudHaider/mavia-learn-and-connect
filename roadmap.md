@@ -7,6 +7,9 @@
 - [x] GPA calculator table
 - [x] Community: group links, cohort chat, AI assistant
 - [x] Works on phone, tablet, laptop, desktop + installable on home screen
-- [ ] Explain how to open the code in VS Code (GitHub)
+- [x] Explain how to open the code in VS Code (GitHub)
 - [x] Replace logo with the official uploaded logo (site, tab icon, phone icon)
-- [ ] Arabic / English language switch across the whole platform
+- [x] Arabic / English language switch across the whole platform
+- [x] Name the "Community" tab in English (like "Learning")
+- [x] Each student sees only their own year's content (admin sees all)
+- [x] GPA: midterm /30, coursework /30, final /40; default 3 subjects x3h, 4 subjects x2h, 1 subject outside GPA

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ACADEMIC_YEARS } from "@/lib/phone";
+import { useLang } from "@/lib/i18n";
 
 export function YearChips({
   value,
@@ -10,6 +11,7 @@ export function YearChips({
   onChange: (v: number | null) => void;
   includeAll?: boolean;
 }) {
+  const { tr } = useLang();
   return (
     <div className="flex flex-wrap gap-2">
       {includeAll && (
@@ -20,7 +22,7 @@ export function YearChips({
           data-active={value === null}
           onClick={() => onChange(null)}
         >
-          كل الفرق
+          {tr("كل الفرق", "All years")}
         </Button>
       )}
       {ACADEMIC_YEARS.map((y) => (
@@ -32,7 +34,7 @@ export function YearChips({
           data-active={value === y.value}
           onClick={() => onChange(y.value)}
         >
-          {y.label}
+          {tr(y.label, y.labelEn)}
         </Button>
       ))}
     </div>

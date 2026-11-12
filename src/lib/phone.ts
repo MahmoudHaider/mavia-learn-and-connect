@@ -18,12 +18,14 @@ export function phoneToEmail(raw: string): string {
 }
 
 export const ACADEMIC_YEARS = [
-  { value: 1, label: "الفرقة الأولى" },
-  { value: 2, label: "الفرقة الثانية" },
-  { value: 3, label: "الفرقة الثالثة" },
-  { value: 4, label: "الفرقة الرابعة" },
+  { value: 1, label: "الفرقة الأولى", labelEn: "Year 1" },
+  { value: 2, label: "الفرقة الثانية", labelEn: "Year 2" },
+  { value: 3, label: "الفرقة الثالثة", labelEn: "Year 3" },
+  { value: 4, label: "الفرقة الرابعة", labelEn: "Year 4" },
 ] as const;
 
-export function yearLabel(year: number | null | undefined): string {
-  return ACADEMIC_YEARS.find((y) => y.value === year)?.label ?? "كل الفرق";
+export function yearLabel(year: number | null | undefined, lang: "ar" | "en" = "ar"): string {
+  const y = ACADEMIC_YEARS.find((y) => y.value === year);
+  if (!y) return lang === "ar" ? "كل الفرق" : "All years";
+  return lang === "ar" ? y.label : y.labelEn;
 }

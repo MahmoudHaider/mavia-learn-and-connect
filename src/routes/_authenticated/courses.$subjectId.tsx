@@ -11,6 +11,7 @@ import { AdminDialog, Field, required, str } from "@/components/mavia/admin-dial
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/courses/$subjectId")({
   head: () => ({
@@ -28,6 +29,7 @@ function SubjectPage() {
   const { subjectId } = Route.useParams();
   const { data: me } = useMe();
   const qc = useQueryClient();
+  const { tr, lang } = useLang();
   const [tab, setTab] = useState<"summaries" | "quizzes">("summaries");
 
   const subject = useQuery({
@@ -88,7 +90,7 @@ function SubjectPage() {
   async function addSummary(form: FormData) {
     const { error } = await supabase.from("summaries").insert({
       subject_id: subjectId,
-      title: required(form, "title", "العنوان"),
+      title: required(form, "title", tr("العنوان", "Title")),
       content: str(form, "content") || null,
       link_url: str(form, "link") || null,
     });
@@ -98,73 +100,100 @@ function SubjectPage() {
   async function addQuiz(form: FormData) {
     const { error } = await supabase.from("quizzes").insert({
       subject_id: subjectId,
-      title: required(form, "title", "اسم الاختبار"),
+      title: required(form, "title", tr("اسم الاختبار", "Quiz name")),
       description: str(form, "description") || null,
     });
     if (error) throw new Error(error.message);
     qc.invalidateQueries({ queryKey: ["quizzes", subjectId] });
   }
   async function del(table: "summaries" | "quizzes", id: string) {
-    if (!confirm("متأكد من المسح؟")) return;
+    if (!confirm(tr("متأكد من المسح؟", "Delete this?"))) return;
     const { error } = await supabase.from(table).delete().eq("id", id);
-    if (error) { alert(error.message); return; }
+    if (error) {
+      alert(error.message);
+      return;
+    }
     qc.invalidateQueries({ queryKey: [table, subjectId] });
   }
 
   if (subject.isLoading) return <div className="h-40 animate-pulse rounded-2xl bg-muted" />;
-  if (!subject.data) return <EmptyState title="المادة دي مش موجودة" />;
+  if (!subject.data)
+    return <EmptyState title={tr("المادة دي مش موجودة", "This subject does not exist")} />;
 
   return (
     <div>
       <Button asChild variant="ghost" size="sm" className="mb-4">
         <Link to="/courses">
-          <ArrowRight /> رجوع للكورسات
+          <ArrowRight className="ltr:rotate-180" /> {tr("رجوع للكورسات", "Back to courses")}
         </Link>
       </Button>
       <PageHeader
-        eyebrow={yearLabel(subject.data.academic_year)}
+        eyebrow={yearLabel(subject.data.academic_year, lang)}
         title={subject.data.title}
         description={subject.data.description ?? undefined}
         action={
           me?.isAdmin &&
           (tab === "summaries" ? (
-            <AdminDialog triggerLabel="إضافة ملخص" title="ملخص جديد" onSave={addSummary}>
-              <Field label="العنوان">
-                <Input name="title" placeholder="مثال: ملخص الشابتر الأول" />
+            <AdminDialog
+              triggerLabel={tr("إضافة ملخص", "Add summary")}
+              title={tr("ملخص جديد", "New summary")}
+              onSave={addSummary}
+            >
+              <Field label={tr("العنوان", "Title")}>
+                <Input
+                  name="title"
+                  placeholder={tr("مثال: ملخص الشابتر الأول", "e.g. Chapter 1 summary")}
+                />
               </Field>
-              <Field label="محتوى الملخص (اختياري)">
+              <Field label={tr("محتوى الملخص (اختياري)", "Summary text (optional)")}>
                 <Textarea name="content" rows={6} />
               </Field>
-              <Field label="رابط ملف PDF أو Drive (اختياري)">
+              <Field label={tr("رابط ملف PDF أو Drive (اختياري)", "PDF or Drive link (optional)")}>
                 <Input name="link" dir="ltr" placeholder="https://..." />
               </Field>
             </AdminDialog>
           ) : (
-            <AdminDialog triggerLabel="إضافة اختبار" title="اختبار جديد" onSave={addQuiz}>
-              <Field label="اسم الاختبار">
-                <Input name="title" placeholder="مثال: اختبار شامل على الميد" />
+            <AdminDialog
+              triggerLabel={tr("إضافة اختبار", "Add quiz")}
+              title={tr("اختبار جديد", "New quiz")}
+              onSave={addQuiz}
+            >
+              <Field label={tr("اسم الاختبار", "Quiz name")}>
+                <Input
+                  name="title"
+                  placeholder={tr("مثال: اختبار شامل على الميد", "e.g. Midterm review quiz")}
+                />
               </Field>
-              <Field label="وصف (اختياري)">
+              <Field label={tr("وصف (اختياري)", "Description (optional)")}>
                 <Textarea name="description" rows={3} />
               </Field>
-              <p className="text-xs text-muted-foreground">بعد الحفظ افتح الاختبار وضيف الأسئلة.</p>
+              <p className="text-xs text-muted-foreground">
+                {tr(
+                  "بعد الحفظ افتح الاختبار وضيف الأسئلة.",
+                  "After saving, open the quiz to add questions.",
+                )}
+              </p>
             </AdminDialog>
           ))
         }
       />
 
       <div className="mb-6 flex gap-2">
-        <Button variant="chip" data-active={tab === "summaries"} onClick={() => setTab("summaries")}>
-          <FileText /> الملخصات
+        <Button
+          variant="chip"
+          data-active={tab === "summaries"}
+          onClick={() => setTab("summaries")}
+        >
+          <FileText /> {tr("الملخصات", "Summaries")}
         </Button>
         <Button variant="chip" data-active={tab === "quizzes"} onClick={() => setTab("quizzes")}>
-          <ListChecks /> الاختبارات
+          <ListChecks /> {tr("الاختبارات", "Quizzes")}
         </Button>
       </div>
 
       {tab === "summaries" ? (
         !summaries.data?.length ? (
-          <EmptyState title="مفيش ملخصات لسه" />
+          <EmptyState title={tr("مفيش ملخصات لسه", "No summaries yet")} />
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {summaries.data.map((s) => (
@@ -172,18 +201,25 @@ function SubjectPage() {
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-lg font-semibold text-primary">{s.title}</h3>
                   {me?.isAdmin && (
-                    <Button variant="ghost" size="icon-sm" onClick={() => del("summaries", s.id)} aria-label="مسح">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => del("summaries", s.id)}
+                      aria-label={tr("مسح", "Delete")}
+                    >
                       <Trash2 />
                     </Button>
                   )}
                 </div>
                 {s.content && (
-                  <p className="mt-3 text-sm leading-7 whitespace-pre-wrap text-foreground/85">{s.content}</p>
+                  <p className="mt-3 text-sm leading-7 whitespace-pre-wrap text-foreground/85">
+                    {s.content}
+                  </p>
                 )}
                 {s.link_url && (
                   <Button asChild variant="outline" size="sm" className="mt-4">
                     <a href={s.link_url} target="_blank" rel="noreferrer">
-                      <ExternalLink /> افتح الملف
+                      <ExternalLink /> {tr("افتح الملف", "Open file")}
                     </a>
                   </Button>
                 )}
@@ -192,7 +228,7 @@ function SubjectPage() {
           </div>
         )
       ) : !quizzes.data?.length ? (
-        <EmptyState title="مفيش اختبارات لسه" />
+        <EmptyState title={tr("مفيش اختبارات لسه", "No quizzes yet")} />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {quizzes.data.map((q) => {
@@ -203,20 +239,36 @@ function SubjectPage() {
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-lg font-semibold">{q.title}</h3>
                   {me?.isAdmin && (
-                    <Button variant="ghost" size="icon-sm" onClick={() => del("quizzes", q.id)} aria-label="مسح">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => del("quizzes", q.id)}
+                      aria-label={tr("مسح", "Delete")}
+                    >
                       <Trash2 />
                     </Button>
                   )}
                 </div>
-                {q.description && <p className="mt-1 text-sm text-muted-foreground">{q.description}</p>}
+                {q.description && (
+                  <p className="mt-1 text-sm text-muted-foreground">{q.description}</p>
+                )}
                 <div className="mt-4 flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
-                    {count} سؤال
-                    {best && <span className="mr-2 text-primary">• أعلى درجة: {best.score}/{best.total}</span>}
+                    {count} {tr("سؤال", "questions")}
+                    {best && (
+                      <span className="ms-2 text-primary">
+                        • {tr("أعلى درجة", "Best")}: {best.score}/{best.total}
+                      </span>
+                    )}
                   </span>
                   <Button asChild size="sm">
                     <Link to="/quiz/$quizId" params={{ quizId: q.id }}>
-                      <Play /> {me?.isAdmin ? "افتح / ضيف أسئلة" : best ? "حل تاني" : "ابدأ"}
+                      <Play className="rtl:-scale-x-100" />{" "}
+                      {me?.isAdmin
+                        ? tr("افتح / ضيف أسئلة", "Open / add questions")
+                        : best
+                          ? tr("حل تاني", "Retake")
+                          : tr("ابدأ", "Start")}
                     </Link>
                   </Button>
                 </div>

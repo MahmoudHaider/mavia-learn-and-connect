@@ -329,6 +329,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_see_quiz: { Args: { _quiz_id: string }; Returns: boolean }
+      can_see_subject: { Args: { _subject_id: string }; Returns: boolean }
+      can_see_year: { Args: { _year: number }; Returns: boolean }
       current_user_year: { Args: never; Returns: number }
       get_leaderboard: {
         Args: { _year: number }

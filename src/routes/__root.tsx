@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
+import { LanguageProvider } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -47,9 +48,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          الصفحة ما اتحملتش
-        </h1>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">الصفحة ما اتحملتش</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           حصلت مشكلة. جرّب تعمل تحديث أو ارجع للرئيسية.
         </p>
@@ -144,8 +143,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster position="top-center" theme="dark" />
+      <LanguageProvider>
+        <Outlet />
+        <Toaster position="top-center" theme="dark" />
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

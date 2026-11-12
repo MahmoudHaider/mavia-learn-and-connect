@@ -21,6 +21,7 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/community/assistant")({
   head: () => ({
@@ -34,19 +35,23 @@ export const Route = createFileRoute("/_authenticated/community/assistant")({
   component: AssistantPage,
 });
 
-const SUGGESTIONS = [
-  "إيه هي منصة ماڤيا؟",
-  "إزاي أحسب الـ GPA بتاعي؟",
-  "لوحة التصدر بتتحسب إزاي؟",
-  "أبدأ أتعلم GIS منين؟",
+const SUGGESTIONS: [string, string][] = [
+  ["إيه هي منصة ماڤيا؟", "What is MAVIA?"],
+  ["إزاي أحسب الـ GPA بتاعي؟", "How do I calculate my GPA?"],
+  ["لوحة التصدر بتتحسب إزاي؟", "How is the leaderboard calculated?"],
+  ["أبدأ أتعلم GIS منين؟", "Where should I start learning GIS?"],
 ];
 
 function AssistantPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { tr, lang } = useLang();
+  const langRef = useRef(lang);
+  langRef.current = lang;
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
         api: "/api/assistant",
+        body: () => ({ lang: langRef.current }),
         headers: async (): Promise<Record<string, string>> => {
           const { data } = await supabase.auth.getSession();
           const token = data.session?.access_token;
@@ -60,9 +65,19 @@ function AssistantPage() {
     transport,
     onError: (err) => {
       const msg = err.message ?? "";
-      if (msg.includes("429")) toast.error("ضغط كبير على المساعد، استنى شوية وجرّب تاني.");
-      else if (msg.includes("402")) toast.error("رصيد المساعد خلص مؤقتًا.");
-      else toast.error("المساعد مش متاح دلوقتي، حاول تاني.");
+      if (msg.includes("429"))
+        toast.error(
+          tr(
+            "ضغط كبير على المساعد، استنى شوية وجرّب تاني.",
+            "The assistant is busy, try again shortly.",
+          ),
+        );
+      else if (msg.includes("402"))
+        toast.error(tr("رصيد المساعد خلص مؤقتًا.", "The assistant is out of credits for now."));
+      else
+        toast.error(
+          tr("المساعد مش متاح دلوقتي، حاول تاني.", "The assistant is unavailable, try again."),
+        );
     },
   });
 
@@ -83,12 +98,14 @@ function AssistantPage() {
       <div className="mb-4 flex items-center justify-between gap-3">
         <Button asChild variant="ghost" size="sm">
           <Link to="/community">
-            <ArrowRight /> الكوميونتي
+            <ArrowRight className="ltr:rotate-180" /> Community
           </Link>
         </Button>
         <div className="flex items-center gap-2">
           <BrandMark className="h-8 w-8" />
-          <div className="font-display text-xl font-bold text-gold-gradient">مساعد ماڤيا</div>
+          <div className="font-display text-xl font-bold text-gold-gradient">
+            {tr("مساعد ماڤيا", "MAVIA assistant")}
+          </div>
         </div>
         <Button
           variant="outline"
@@ -98,7 +115,7 @@ function AssistantPage() {
             setMessages([]);
           }}
         >
-          <RotateCcw /> محادثة جديدة
+          <RotateCcw /> {tr("محادثة جديدة", "New chat")}
         </Button>
       </div>
 
@@ -109,15 +126,20 @@ function AssistantPage() {
               <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
                 <BrandMark className="h-20 w-20 animate-float" />
                 <div>
-                  <div className="font-display text-2xl font-bold">أهلًا! أنا مساعد ماڤيا</div>
+                  <div className="font-display text-2xl font-bold">
+                    {tr("أهلًا! أنا مساعد ماڤيا", "Hi! I’m the MAVIA assistant")}
+                  </div>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    اسألني أي حاجة عن المنصة وأقسامها، أو عن المذاكرة والـ GIS والبرمجة.
+                    {tr(
+                      "اسألني أي حاجة عن المنصة وأقسامها، أو عن المذاكرة والـ GIS والبرمجة.",
+                      "Ask me anything about the platform, studying, GIS or programming.",
+                    )}
                   </p>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2">
                   {SUGGESTIONS.map((s) => (
-                    <Button key={s} variant="chip" size="sm" onClick={() => ask(s)}>
-                      {s}
+                    <Button key={s[1]} variant="chip" size="sm" onClick={() => ask(tr(s[0], s[1]))}>
+                      {tr(s[0], s[1])}
                     </Button>
                   ))}
                 </div>
@@ -144,7 +166,7 @@ function AssistantPage() {
             {status === "submitted" && (
               <Message from="assistant">
                 <MessageContent>
-                  <Shimmer>بيفكر...</Shimmer>
+                  <Shimmer>{tr("بيفكر...", "Thinking...")}</Shimmer>
                 </MessageContent>
               </Message>
             )}
@@ -154,7 +176,10 @@ function AssistantPage() {
 
         <div className="border-t border-border p-3">
           <PromptInput onSubmit={(msg) => ask(msg.text)}>
-            <PromptInputTextarea ref={textareaRef} placeholder="اكتب سؤالك هنا..." />
+            <PromptInputTextarea
+              ref={textareaRef}
+              placeholder={tr("اكتب سؤالك هنا...", "Type your question...")}
+            />
             <PromptInputFooter className="justify-end">
               <PromptInputSubmit status={status} onStop={stop} />
             </PromptInputFooter>

@@ -8,13 +8,15 @@ import { useMe } from "@/hooks/use-me";
 import { yearLabel } from "@/lib/phone";
 import { Brand } from "./brand";
 import { Button } from "@/components/ui/button";
+import { useLang } from "@/lib/i18n";
+import { LanguageToggle } from "./language-toggle";
 
 const NAV = [
-  { to: "/home", label: "الرئيسية", icon: Home },
-  { to: "/courses", label: "الكورسات", icon: BookOpen },
-  { to: "/learning", label: "Learning", icon: PlayCircle },
-  { to: "/gpa", label: "حاسبة GPA", icon: Calculator },
-  { to: "/community", label: "الكوميونتي", icon: Users },
+  { to: "/home", ar: "الرئيسية", en: "Home", icon: Home },
+  { to: "/courses", ar: "الكورسات", en: "Courses", icon: BookOpen },
+  { to: "/learning", ar: "Learning", en: "Learning", icon: PlayCircle },
+  { to: "/gpa", ar: "حاسبة GPA", en: "GPA", icon: Calculator },
+  { to: "/community", ar: "Community", en: "Community", icon: Users },
 ] as const;
 
 const navItem =
@@ -27,6 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: me } = useMe();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { tr, lang } = useLang();
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -39,28 +42,34 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-ink-gradient">
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-          <Link to="/home" aria-label="ماڤيا">
+          <Link to="/home" aria-label="MAVIA">
             <Brand />
           </Link>
           <nav className="hidden items-center gap-1 lg:flex">
             {NAV.map((n) => (
               <Link key={n.to} to={n.to} className={navItem}>
                 <n.icon className="h-4 w-4" />
-                {n.label}
+                {tr(n.ar, n.en)}
               </Link>
             ))}
           </nav>
           <div className="flex items-center gap-2">
             {me && (
-              <div className="hidden text-left sm:block" dir="rtl">
+              <div className="hidden text-end sm:block">
                 <div className="text-sm font-semibold">{me.fullName}</div>
                 <div className="text-[11px] text-muted-foreground">
-                  {yearLabel(me.academicYear)}
-                  {me.isAdmin && <span className="mr-1 text-primary">• أدمن</span>}
+                  {yearLabel(me.academicYear, lang)}
+                  {me.isAdmin && <span className="ms-1 text-primary">• {tr("أدمن", "Admin")}</span>}
                 </div>
               </div>
             )}
-            <Button variant="outline" size="icon-sm" onClick={signOut} aria-label="تسجيل الخروج">
+            <LanguageToggle />
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={signOut}
+              aria-label={tr("تسجيل الخروج", "Sign out")}
+            >
               <LogOut />
             </Button>
           </div>
@@ -73,7 +82,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {NAV.map((n) => (
           <Link key={n.to} to={n.to} className={mobileItem}>
             <n.icon className="h-5 w-5" />
-            {n.label}
+            {tr(n.ar, n.en)}
           </Link>
         ))}
       </nav>

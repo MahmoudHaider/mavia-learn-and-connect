@@ -10,6 +10,7 @@ import { GoldFlakes } from "@/components/mavia/gold-flakes";
 import { YearChips } from "@/components/mavia/year-chips";
 import { EmptyState } from "@/components/mavia/page-header";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
@@ -24,14 +25,35 @@ export const Route = createFileRoute("/_authenticated/home")({
 });
 
 const QUICK = [
-  { to: "/courses", label: "الكورسات", text: "مواد دفعتك وملخصاتها واختباراتها", icon: BookOpen },
-  { to: "/learning", label: "Learning", text: "فيديوهات ومنصات GIS وبرمجة", icon: PlayCircle },
-  { to: "/gpa", label: "حاسبة GPA", text: "احسب معدلك من درجاتك", icon: Calculator },
-  { to: "/community", label: "الكوميونتي", text: "جروبات وشات الدفعة ومساعد ذكي", icon: Users },
+  {
+    to: "/courses",
+    label: ["الكورسات", "Courses"],
+    text: ["مواد دفعتك وملخصاتها واختباراتها", "Your cohort's subjects, summaries and quizzes"],
+    icon: BookOpen,
+  },
+  {
+    to: "/learning",
+    label: ["Learning", "Learning"],
+    text: ["فيديوهات ومنصات GIS وبرمجة", "GIS and programming videos and platforms"],
+    icon: PlayCircle,
+  },
+  {
+    to: "/gpa",
+    label: ["حاسبة GPA", "GPA calculator"],
+    text: ["احسب معدلك من درجاتك", "Work out your GPA from your marks"],
+    icon: Calculator,
+  },
+  {
+    to: "/community",
+    label: ["Community", "Community"],
+    text: ["جروبات وشات الدفعة ومساعد ذكي", "Groups, cohort chat and an AI assistant"],
+    icon: Users,
+  },
 ] as const;
 
 function HomePage() {
   const { data: me } = useMe();
+  const { tr, lang } = useLang();
   const [year, setYear] = useState<number | null>(null);
   useEffect(() => {
     if (me && year === null) setYear(me.academicYear);
@@ -55,20 +77,25 @@ function HomePage() {
       <section className="card-lux animate-rise relative overflow-hidden p-7 sm:p-10">
         <GoldFlakes count={6} />
         <div className="relative max-w-2xl">
-          <p className="text-sm text-primary">أهلًا {me?.fullName ?? ""} 👋</p>
+          <p className="text-sm text-primary">
+            {tr("أهلًا", "Hi")} {me?.fullName ?? ""} 👋
+          </p>
           <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
-            مرحبًا بيك في <span className="animate-sheen font-latin tracking-wider">MAVIA</span>
+            {tr("مرحبًا بيك في", "Welcome to")}{" "}
+            <span className="animate-sheen font-latin tracking-wider">MAVIA</span>
           </h1>
           <p className="mt-4 leading-relaxed text-foreground/80">
-            ماڤيا منصة معمولة خصيصًا لجميع الدفعات من الأولى للرابعة، بتضم جميع مواد كل دفعة على حدى
-            بالملخصات والاختبارات الشاملة، وكورسات تعليمية مفيدة للـ GIS والبرمجة بشكل عام.
+            {tr(
+              "ماڤيا منصة معمولة خصيصًا لجميع الدفعات من الأولى للرابعة، بتضم جميع مواد كل دفعة على حدى بالملخصات والاختبارات الشاملة، وكورسات تعليمية مفيدة للـ GIS والبرمجة بشكل عام.",
+              "MAVIA is built for every cohort from Year 1 to Year 4. It holds each year's subjects with summaries and full quizzes, plus useful courses in GIS and programming.",
+            )}
           </p>
           {me && (
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-primary/40 px-4 py-1.5 text-sm">
               <Trophy className="h-4 w-4 text-primary" />
               {myRank >= 0 && year === me.academicYear
-                ? `ترتيبك في ${yearLabel(me.academicYear)}: #${myRank + 1}`
-                : `دفعتك: ${yearLabel(me.academicYear)}`}
+                ? `${tr("ترتيبك في", "Your rank in")} ${yearLabel(me.academicYear, lang)}: #${myRank + 1}`
+                : `${tr("دفعتك", "Your cohort")}: ${yearLabel(me.academicYear, lang)}`}
             </div>
           )}
         </div>
@@ -78,9 +105,11 @@ function HomePage() {
         {QUICK.map((q) => (
           <Link key={q.to} to={q.to} className="card-lux press-gold group block p-5">
             <q.icon className="h-6 w-6 text-primary group-active:text-primary-foreground" />
-            <div className="mt-3 font-display text-lg font-semibold">{q.label}</div>
+            <div className="mt-3 font-display text-lg font-semibold">
+              {tr(q.label[0], q.label[1])}
+            </div>
             <div className="text-sm text-muted-foreground group-active:text-primary-foreground">
-              {q.text}
+              {tr(q.text[0], q.text[1])}
             </div>
           </Link>
         ))}
@@ -90,19 +119,34 @@ function HomePage() {
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold">
-              <span className="text-gold-gradient">لوحة التصدر</span>
+              <span className="text-gold-gradient">{tr("لوحة التصدر", "Leaderboard")}</span>
             </h2>
             <p className="text-sm text-muted-foreground">
-              النقاط = مجموع أعلى درجة في كل اختبار حليته على المنصة.
+              {tr(
+                "النقاط = مجموع أعلى درجة في كل اختبار حليته على المنصة.",
+                "Points = the sum of your best score in every quiz you took.",
+              )}
             </p>
           </div>
-          <YearChips value={year} onChange={(v) => setYear(v)} />
+          {me?.isAdmin ? (
+            <YearChips value={year} onChange={(v) => setYear(v)} />
+          ) : (
+            <span className="rounded-full border border-primary/40 px-4 py-1.5 text-sm text-primary">
+              {yearLabel(me?.academicYear, lang)}
+            </span>
+          )}
         </div>
 
         {board.isLoading ? (
           <div className="h-40 animate-pulse rounded-2xl bg-muted" />
         ) : rows.length === 0 ? (
-          <EmptyState title="لسه مفيش طلاب في الدفعة دي" hint="أول ما الطلاب يحلوا اختبارات هيظهروا هنا." />
+          <EmptyState
+            title={tr("لسه مفيش طلاب في الدفعة دي", "No students in this cohort yet")}
+            hint={tr(
+              "أول ما الطلاب يحلوا اختبارات هيظهروا هنا.",
+              "Students appear here once they take quizzes.",
+            )}
+          />
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-3 items-end gap-3">
@@ -123,9 +167,13 @@ function HomePage() {
                     ) : (
                       <Medal className="h-6 w-6 text-gold-deep" />
                     )}
-                    <div className="mt-2 font-latin text-2xl font-bold text-gold-gradient">#{idx + 1}</div>
+                    <div className="mt-2 font-latin text-2xl font-bold text-gold-gradient">
+                      #{idx + 1}
+                    </div>
                     <div className="mt-1 line-clamp-1 text-sm font-semibold">{r.full_name}</div>
-                    <div className="text-xs text-muted-foreground">{r.points} نقطة</div>
+                    <div className="text-xs text-muted-foreground">
+                      {r.points} {tr("نقطة", "pts")}
+                    </div>
                   </div>
                 );
               })}
@@ -143,10 +191,16 @@ function HomePage() {
                   <div className="w-8 font-latin text-lg font-bold text-primary">{i + 1}</div>
                   <div className="flex-1 font-medium">
                     {r.full_name}
-                    {r.user_id === me?.id && <span className="mr-2 text-xs text-primary">(إنت)</span>}
+                    {r.user_id === me?.id && (
+                      <span className="ms-2 text-xs text-primary">({tr("إنت", "you")})</span>
+                    )}
                   </div>
-                  <div className="text-xs text-muted-foreground">{r.quizzes_taken} اختبار</div>
-                  <div className="w-20 text-left font-semibold">{r.points} نقطة</div>
+                  <div className="text-xs text-muted-foreground">
+                    {r.quizzes_taken} {tr("اختبار", "quizzes")}
+                  </div>
+                  <div className="w-20 text-end font-semibold">
+                    {r.points} {tr("نقطة", "pts")}
+                  </div>
                 </div>
               ))}
             </div>

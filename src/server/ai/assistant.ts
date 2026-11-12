@@ -15,7 +15,7 @@ const INSTRUCTIONS = `إنت "مساعد ماڤيا"، المساعد الذكي
   1. الرئيسية: تعريف بالمنصة ولوحة التصدر الخاصة بكل دفعة. النقاط = مجموع أعلى درجة للطالب في كل اختبار حله على المنصة.
   2. الكورسات: مواد كل فرقة، وجوه كل مادة الملخصات والاختبارات. الأدمن هو اللي بيضيف المواد والملخصات والاختبارات.
   3. Learning: روابط فيديوهات يوتيوب ومنصات تعليمية في الـ GIS والبرمجة، بتفتح المصدر على طول.
-  4. حاسبة GPA: جدول بتكتب فيه كل مادة وساعاتها ودرجة الميد (من 20) وأعمال السنة/التكليفات (من 20) والفاينل (من 60)، وبتطلعلك التقدير والمعدل من 4. السلم: 90+ A=4.0، 85 A-=3.7، 80 B+=3.3، 75 B=3.0، 70 C+=2.7، 65 C=2.4، 60 D+=2.2، 50 D=2.0، أقل من 50 F.
+  4. حاسبة GPA: جدول بتكتب فيه كل مادة وساعاتها ودرجة الميد (من 30) وأعمال السنة/التكليفات (من 30) والفاينل (من 40). الترم فيه 8 مواد: 3 مواد 3 ساعات و4 مواد ساعتين ومادة واحدة برا الـ GPA (ساعاتها مش بتتحسب)، ويقدر يعلّم أي مادة إنها داخلة أو برا الـ GPA، وبتطلعلك التقدير والمعدل من 4. السلم: 90+ A=4.0، 85 A-=3.7، 80 B+=3.3، 75 B=3.0، 70 C+=2.7، 65 C=2.4، 60 D+=2.2، 50 D=2.0، أقل من 50 F.
   5. الكوميونتي: روابط جروبات الدفعات، وشات جوه المنصة لكل دفعة يتواصلوا فيه، وإنت (المساعد الذكي).
 - ممكن كمان تساعد الطلاب في أسئلة عامة عن المذاكرة والـ GIS والبرمجة.
 لو حد سأل عن حاجة مش موجودة في المنصة قول بصراحة إنها مش موجودة. ما تخترعش معلومات عن المواد أو الدرجات.`;
@@ -47,10 +47,12 @@ export async function handleAssistant(request: Request): Promise<Response> {
   if (!apiKey) return json(500, "المساعد مش متوصّل دلوقتي.");
 
   let messages: UIMessage[];
+  let lang: "ar" | "en" = "ar";
   try {
-    const body = (await request.json()) as { messages?: UIMessage[] };
+    const body = (await request.json()) as { messages?: UIMessage[]; lang?: string };
     if (!Array.isArray(body.messages)) throw new Error("bad body");
     messages = body.messages.slice(-30);
+    lang = body.lang === "en" ? "en" : "ar";
   } catch {
     return json(400, "طلب غير صحيح.");
   }
@@ -60,6 +62,8 @@ export async function handleAssistant(request: Request): Promise<Response> {
     request,
     { baseURL: GATEWAY_URL, apiKey, model: MODEL },
     modelMessages,
-    INSTRUCTIONS,
+    lang === "en"
+      ? `${INSTRUCTIONS}\n\nThe student is using the English interface: reply in clear, friendly English (the platform name is MAVIA).`
+      : INSTRUCTIONS,
   ).response();
 }
