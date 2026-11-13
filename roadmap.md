@@ -15,3 +15,7 @@
 - [x] GPA: midterm /30, coursework /30, final /40; default 3 subjects x3h, 4 subjects x2h, 1 subject outside GPA
 - [x] Strict year separation: year locked after sign-up, Community groups per year only; Learning shared by all years
 - [ ] After every change: send an updated source ZIP
+- [ ] Announcements + exam dates per year (admin posts), countdown to next exam on Home
+- [ ] Stronger quizzes: time limit, shuffled questions, explanation per question, review mistakes
+- [ ] AI study buddy: explains your year's summaries and makes practice questions
+- [ ] Badges & streaks next to the leaderboard
