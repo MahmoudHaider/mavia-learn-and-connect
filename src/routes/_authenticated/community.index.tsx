@@ -56,17 +56,17 @@ function CommunityPage() {
     },
   });
   const shown = (links.data ?? []).filter(
-    (l) => year === null || l.academic_year === null || l.academic_year === year,
+    (l) => year === null || l.academic_year === year,
   );
 
   async function add(form: FormData) {
     const url = required(form, "url", tr("الرابط", "Link"));
-    const y = str(form, "year");
+    const y = required(form, "year", tr("الفرقة", "Year"));
     const { error } = await supabase.from("community_links").insert({
       title: required(form, "title", tr("الاسم", "Name")),
       url: /^https?:\/\//i.test(url) ? url : `https://${url}`,
       platform: str(form, "platform") || "whatsapp",
-      academic_year: y ? Number(y) : null,
+      academic_year: Number(y),
     });
     if (error) throw new Error(error.message);
     qc.invalidateQueries({ queryKey: ["community-links"] });
@@ -156,8 +156,7 @@ function CommunityPage() {
                 </select>
               </Field>
               <Field label={tr("الفرقة", "Year")}>
-                <select name="year" className={selectClass} defaultValue="">
-                  <option value="">{tr("كل الفرق", "All years")}</option>
+                <select name="year" className={selectClass} defaultValue={year ?? me?.academicYear ?? 1}>
                   {ACADEMIC_YEARS.map((y) => (
                     <option key={y.value} value={y.value}>
                       {tr(y.label, y.labelEn)}

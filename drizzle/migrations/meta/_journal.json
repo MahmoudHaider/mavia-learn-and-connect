@@ -15,6 +15,13 @@
       "when": 1794507709505,
       "tag": "0001_per_year_visibility",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794576365422,
+      "tag": "0002_strict_year_separation",
+      "breakpoints": true
     }
   ]
 }
