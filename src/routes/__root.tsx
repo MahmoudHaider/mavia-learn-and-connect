@@ -88,7 +88,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "description",
         content: "منصة ماڤيا لكل الفرق: مواد وملخصات واختبارات وكورسات GIS وبرمجة ومجتمع الدفعة.",
       },
-      { name: "author", content: "MAVIA" },
+      { name: "author", content: "Mahmoud Haider Youseif" },
       { property: "og:title", content: "ماڤيا MAVIA" },
       { property: "og:description", content: "منصة تعليمية لكل الدفعات من الأولى للرابعة." },
       { property: "og:type", content: "website" },

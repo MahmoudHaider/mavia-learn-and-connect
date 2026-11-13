@@ -24,6 +24,7 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "ملخصات واختبارات شاملة وكورسات GIS وبرمجة ومجتمع لكل دفعة.",
       },
+      { name: "author", content: "Mahmoud Haider Youseif" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -158,6 +159,20 @@ function Landing() {
             </div>
           ))}
         </section>
+
+        <footer className="border-t border-border/60 py-6">
+          <div className="flex flex-col items-center gap-1 text-center">
+            <p className="text-xs text-muted-foreground">
+              {tr(
+                "© 2026 ماڤيا MAVIA — جميع الحقوق محفوظة",
+                "© 2026 MAVIA — All rights reserved",
+              )}
+            </p>
+            <p className="text-xs text-primary/80">
+              {tr("صنعها", "Created by")} <span className="font-semibold">Mahmoud Haider Youseif</span>
+            </p>
+          </div>
+        </footer>
       </div>
     </div>
   );

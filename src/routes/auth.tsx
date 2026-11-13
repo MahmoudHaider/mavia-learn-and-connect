@@ -120,7 +120,7 @@ function AuthPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-10">
+    <div className="relative flex min-h-screen flex-col items-center justify-center gap-4 overflow-hidden bg-background px-4 py-10">
       <img
         src={hero}
         alt=""
@@ -199,6 +199,16 @@ function AuthPage() {
             {mode === "register" ? tr("إنشاء الحساب", "Create account") : tr("دخول", "Sign in")}
           </Button>
         </form>
+      </div>
+
+      <div className="relative z-10 text-center">
+        <p className="text-[11px] text-muted-foreground">
+          {tr("© 2026 ماڤيا MAVIA — جميع الحقوق محفوظة", "© 2026 MAVIA — All rights reserved")}
+        </p>
+        <p className="text-[11px] text-primary/80">
+          {tr("صنعها", "Created by")}{" "}
+          <span className="font-semibold">Mahmoud Haider Youseif</span>
+        </p>
       </div>
     </div>
   );

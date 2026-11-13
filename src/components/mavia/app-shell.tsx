@@ -76,7 +76,22 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pt-8 pb-28 lg:pb-16">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 pt-8 pb-16 lg:pb-8">{children}</main>
+
+      <footer className="mx-auto max-w-6xl px-4 pb-24 lg:pb-6">
+        <div className="border-t border-border/60 pt-4 text-center">
+          <p className="text-[11px] text-muted-foreground">
+            {tr(
+              "© 2026 ماڤيا MAVIA — جميع الحقوق محفوظة",
+              "© 2026 MAVIA — All rights reserved",
+            )}
+          </p>
+          <p className="text-[11px] text-primary/80">
+            {tr("صنعها", "Created by")}{" "}
+            <span className="font-semibold">Mahmoud Haider Youseif</span>
+          </p>
+        </div>
+      </footer>
 
       <nav className="fixed inset-x-3 bottom-3 z-40 flex gap-1 rounded-2xl border border-border bg-background/90 p-1.5 shadow-card backdrop-blur-xl lg:hidden">
         {NAV.map((n) => (

@@ -27,3 +27,8 @@ npm run dev
 - TypeScript
 - React
 - Tailwind CSS
+
+## Copyright
+
+© 2026 ماڤيا MAVIA — All rights reserved.
+Created by **Mahmoud Haider Youseif**.
